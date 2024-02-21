@@ -1,0 +1,48 @@
+#include <Wire.h>;
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Default address of most PCF8574 modules, change according to the module
+int seconds = 0;  
+int Sensor_gas = A0; // declare sensor to analog 0
+int redLED = 4;  // declare red LED to pin 4
+int greenLED = 3;  // declare green LED to pin 3
+int buzzer = 5;  // declare buzzer to pin 5
+int sensorThreshold = 400; // gas sensor treshold on 400, adjustable
+
+void setup() {
+  // put your setup code here, to run once:
+    pinMode(Sensor_gas, INPUT);
+    pinMode(redLED, OUTPUT);
+    pinMode(greenLED, OUTPUT);
+    pinMode(buzzer, OUTPUT);
+    lcd.backlight(); // to turn on the LCD backlight
+    lcd.display(); // to turn on the LCD display
+    lcd.begin(16,2);
+    lcd.clear(); // to clear the LCD display
+  Serial.begin(9600);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  int analogSensor = analogRead(Sensor_gas);
+  if (analogSensor > sensorThreshold) // if the sensor detects above the treshold
+{
+    digitalWrite(redLED, HIGH);
+    digitalWrite(greenLED, LOW);
+    lcd.setCursor(0, 0);
+    lcd.print("Kondisi Ruangan:");
+    lcd.setCursor(0, 1);
+    lcd.print("GAS BOCOR!      ");
+     tone(buzzer, 750, 1000); // buzzer on for 750 hz for 1 second
+   }
+else // 
+   {
+    lcd.setCursor(0, 0);
+    lcd.print("Kondisi Ruangan:");
+    lcd.setCursor(0, 1);
+    lcd.print("Gas aman       ");
+     digitalWrite(redLED, LOW);
+     digitalWrite(greenLED, HIGH);
+     noTone(buzzer); // buzzer sound off
+   }
+   delay(1000);  // delay for 1 second to next sensor reading
+}
